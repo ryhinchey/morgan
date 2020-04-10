@@ -119,7 +119,7 @@ function morgan (format, options) {
         return
       }
 
-      var line = formatLine(morgan, req, res)
+      var line = formatLine(morgan.tokens, req, res)
 
       if (line == null) {
         debug('skip line')
@@ -145,6 +145,9 @@ function morgan (format, options) {
   }
 }
 
+morgan.formats = {}
+morgan.tokens = {}
+
 /**
  * Apache combined log format.
  */
@@ -162,7 +165,7 @@ morgan.format('common', ':remote-addr - :remote-user [:date[clf]] ":method :url 
  */
 
 morgan.format('default', ':remote-addr - :remote-user [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"')
-deprecate.property(morgan, 'default', 'default format: use combined format')
+deprecate.property(morgan.formats, 'default', 'default format: use combined format')
 
 /**
  * Short format.
@@ -452,7 +455,7 @@ function createBufferStream (stream, interval) {
  */
 
 function format (name, fmt) {
-  morgan[name] = fmt
+  morgan.formats[name] = fmt
   return this
 }
 
@@ -466,7 +469,7 @@ function format (name, fmt) {
 
 function getFormatFunction (name) {
   // lookup format
-  var fmt = morgan[name] || name || morgan.default
+  var fmt = morgan.formats[name] || name || morgan.formats.default
 
   // return compiled format
   return typeof fmt !== 'function'
@@ -539,6 +542,6 @@ function recordStartTime () {
  */
 
 function token (name, fn) {
-  morgan[name] = fn
+  morgan.tokens[name] = fn
   return this
 }
